@@ -1,609 +1,172 @@
-# 🎵 WaveSplit  
-## Extraction and Analysis of Musical Elements from Audio Signals
+# Extraction and Analysis of Musical Elements from Audio Signals
 
-WaveSplit is a Python-based audio analysis framework designed for extracting and analyzing important musical elements from audio recordings.
+A Python-based project for extracting and analyzing musical elements from audio recordings using Digital Signal Processing (DSP), audio feature extraction, and deep learning-based source separation.
 
-The main goal of the project is to develop an intelligent system capable of automatically analyzing songs by combining **Digital Signal Processing (DSP)** techniques and modern **Deep Learning-based audio separation models**.
+The project explores how separating individual musical sources can improve the analysis of musical properties such as key, tempo, and pitch.
 
-The system performs:
+Developed as part of the bachelor's thesis:
 
-- 🎼 Instrument separation using **Demucs**
-- 🎹 Musical key detection
-- 🥁 Tempo / BPM estimation
-- 🎵 Real-time note extraction
-- 📊 Audio feature analysis using spectrogram representations
-- 🔊 Individual instrument analysis (drums, bass, vocals, etc.)
+**"Ekstrakcija i analiza muzičkih elemenata iz audio signala – tutorijal"**
 
-The project was developed as part of the thesis project:
+## Overview
 
-> **"Ekstrakcija i analiza muzičkih elemenata iz audio signala - tutorijal"**
+A mixed music recording contains overlapping sources, including vocals, drums, bass, and harmonic instruments. Analyzing these components directly can make it difficult to identify reliable musical characteristics.
 
----
+This project combines source separation with signal processing techniques to analyze both complete recordings and isolated audio stems.
 
-# Project Overview
+The general workflow consists of:
 
-Modern music analysis systems require understanding different components of an audio signal. A mixed audio recording contains multiple overlapping sources:
+1. Loading and preprocessing audio recordings.
+2. Separating musical sources using Demucs.
+3. Extracting relevant audio features.
+4. Estimating musical key and tempo.
+5. Comparing analysis methods and evaluating their performance.
+6. Extracting musical notes from audio streams in real time.
 
-- vocals
-- drums
-- bass
-- harmonic instruments
-- melodies
+## Features
 
-Analyzing these elements directly from the original waveform is challenging because all instruments interfere with each other.
+### Audio Source Separation
 
-WaveSplit solves this problem by introducing an audio preprocessing stage where the original track is separated into individual stems before performing musical analysis.
-
-The general pipeline:
-
-```
-Audio Input
-      |
-      v
-Audio Preprocessing
-      |
-      v
-Instrument Separation (Demucs)
-      |
-      +----------------+
-      |                |
-      v                v
-Key Detection     Tempo Detection
-      |                |
-      v                v
-CQT Analysis      Drum Analysis
-      |
-      v
-Note Extraction
-      |
-      v
-Musical Information Output
-```
-
----
-
-# Features
-
-## Audio Source Separation
-
-WaveSplit uses the pretrained:
-
-**Demucs - Hybrid Transformer/Convolutional Network**
-
-model for separating the input audio into independent stems:
+Uses the pretrained **Demucs** model to separate recordings into four stems:
 
 - Vocals
 - Drums
 - Bass
 - Other instruments
 
-This allows individual analysis of specific musical components.
+These stems enable individual analysis of musical components.
 
-Example:
+### Musical Key Detection
 
-```
-input_song.wav
+Evaluates chromagram-based analysis and the Constant-Q Transform (CQT) for estimating the musical key of a recording.
 
-        |
-        v
+The experiments compare the original audio with separated stems to investigate how source separation and different spectral representations affect key detection.
 
-Demucs
+### Tempo Estimation
 
-        |
-        +---- vocals.wav
-        |
-        +---- drums.wav
-        |
-        +---- bass.wav
-        |
-        +---- other.wav
-```
+Estimates tempo in beats per minute (BPM) using beat-tracking techniques.
 
----
+The evaluated approaches include:
 
-# Musical Key Detection
+- Analysis of the original recording
+- Harmonic-Percussive Source Separation (HPSS)
+- Analysis of the Demucs drum stem
 
-The system estimates the tonal center of the song using spectral analysis.
+### Real-Time Note Detection
 
-Two approaches were evaluated:
+Includes a real-time audio analysis module that estimates musical pitches and maps detected frequencies to musical notes.
 
-## 1. Chromagram-based analysis
+The module uses spectral analysis and CQT-based features to support pitch detection from audio input and isolated instrument recordings.
 
-The traditional chroma representation maps frequencies into 12 pitch classes:
+### Experimental Analysis
 
-```
-C
-C#
-D
-D#
-E
-F
-F#
-G
-G#
-A
-A#
-B
-```
+The project evaluates different combinations of audio preprocessing, source separation, and feature extraction methods.
 
-The detected pitch distribution is compared with major/minor key templates.
+The experiments use a dataset of 110 songs across five genres, with manually annotated reference values for musical key and tempo.
 
----
+## Methodology
 
-## 2. Constant-Q Transform (CQT)
+The project combines deep learning-based source separation with traditional digital signal processing.
 
-The final implementation uses **CQT-based analysis** because it provides better musical frequency representation.
+The main techniques include:
 
-Advantages of CQT:
+- **Demucs** for music source separation
+- **HPSS** for harmonic-percussive separation
+- **STFT** for time-frequency analysis
+- **Chroma features** for pitch-class analysis
+- **CQT** for musical frequency representation
+- **Beat tracking** for tempo estimation
 
-- logarithmic frequency resolution
-- better alignment with musical pitch
-- improved key detection accuracy
-- closer representation of human perception
+Experimental results indicate that CQT-based analysis of separated instrumental audio provides the strongest results among the evaluated approaches for key detection. For tempo estimation, analyzing the isolated drum stem produces the best results among the tested methods.
 
-The best results were achieved by applying CQT on:
+## Technologies
 
-- original audio signal
-- Demucs isolated stems
-
-especially:
-
-```
-CQT + isolated instruments
-```
-
----
-
-# Tempo / BPM Detection
-
-Tempo estimation is performed using rhythmic information extracted from audio.
-
-Different approaches were evaluated:
-
-- full song analysis
-- HPSS separated percussion component
-- Demucs isolated drums
-
-The best performance was achieved using:
-
-```
-Demucs drums stem
-        +
-Beat tracking analysis
-```
-
-because drums contain the strongest rhythmic information.
-
-The system extracts:
-
-- BPM value
-- beat positions
-- rhythmic patterns
-
----
-
-# Real-Time Note Detection
-
-WaveSplit includes a real-time note extraction module capable of detecting played notes from isolated instruments.
-
-The process:
-
-```
-Audio Stream
-
-      |
-      v
-
-FFT / CQT Analysis
-
-      |
-      v
-
-Frequency Detection
-
-      |
-      v
-
-Frequency -> MIDI Mapping
-
-      |
-      v
-
-Musical Note Output
-```
-
-Example output:
-
-```
-Detected notes:
-
-C4
-E4
-G4
-B4
-```
-
-The system can analyze isolated instrument tracks such as:
-
-- bass
-- piano
-- guitar
-
-allowing cleaner pitch detection compared with the original mixed signal.
-
----
-
-# Technologies Used
-
-## Programming Language
-
-- Python 3.10+
-
----
-
-## Audio Processing
-
-- librosa
+- Python
+- PyTorch
+- Demucs
+- Librosa
 - NumPy
 - SciPy
-
-Used for:
-
-- waveform processing
-- FFT analysis
-- spectrogram calculation
-- CQT transformation
-- beat tracking
-
-
----
-
-## Deep Learning
-
-### Demucs
-
-Used for:
-
-- source separation
-- extracting individual instruments
-
-
-Framework:
-
-- PyTorch
-
-
----
-
-## Data Analysis
-
 - Pandas
 - Matplotlib
+- Jupyter Notebook
 
+## Getting Started
 
----
+### Prerequisites
 
-# Project Structure
+- Python 3.10 or later, subject to dependency compatibility
+- Git
+- A working audio processing environment
 
-```
-WaveSplit/
-
-│
-├── notebooks/
-│   │
-│   ├── wavesplit.ipynb
-│   └── analysis.ipynb
-│
-├── audio/
-│   │
-│   ├── input/
-│   └── separated/
-│
-├── models/
-│
-├── src/
-│   │
-│   ├── separation.py
-│   ├── key_detection.py
-│   ├── tempo_detection.py
-│   └── note_detection.py
-│
-├── requirements.txt
-│
-└── README.md
-```
-
----
-
-# Installation
+### Installation
 
 Clone the repository:
 
 ```bash
-git clone https://github.com/username/WaveSplit.git
-
-cd WaveSplit
+git clone https://github.com/maslesa/WaveSplitNotebook.git
+cd WaveSplitNotebook
 ```
 
-Create virtual environment:
+Create and activate a virtual environment:
 
 ```bash
-python -m venv venv
+python -m venv .venv
 ```
 
-Activate environment:
-
-### Windows
+Linux/macOS:
 
 ```bash
-venv\Scripts\activate
+source .venv/bin/activate
 ```
 
-### Linux / macOS
+Windows:
 
 ```bash
-source venv/bin/activate
+.venv\Scripts\activate
 ```
 
-Install dependencies:
+Install the project dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+If a dependency file is not available in the repository, install the required libraries separately.
 
-# Required Libraries
+### Running the Analysis
 
-Main dependencies:
-
-```
-torch
-torchaudio
-demucs
-librosa
-numpy
-scipy
-pandas
-matplotlib
-jupyter
-```
-
----
-
-# Usage
-
-## 1. Audio Separation
-
-Run Demucs:
+Open the notebooks in Jupyter:
 
 ```bash
-python separation.py --input song.wav
+jupyter notebook
 ```
 
-Output:
+Run the notebook cells in sequence to reproduce the audio preprocessing, source separation, feature extraction, and experimental analysis.
 
-```
-separated/
+## Future Improvements
 
-├── vocals.wav
-├── drums.wav
-├── bass.wav
-└── other.wav
-```
+Potential extensions include:
 
----
+- More accurate pitch and key estimation
+- Automatic chord recognition
+- MIDI generation and music transcription
+- Expanded evaluation on larger datasets
+- A real-time desktop or web application
 
-## 2. Key Detection
+## References
 
-Example:
+- [Demucs](https://github.com/facebookresearch/demucs) — Music source separation
+- [Librosa](https://librosa.org/) — Audio and music analysis
+- Brown, J. C. (1991). *Calculation of a Constant Q Spectral Transform.*
 
-```python
-from key_detection import detect_key
-
-key = detect_key(
-    "separated/other.wav"
-)
-
-print(key)
-```
-
-Example output:
-
-```
-Detected key:
-
-F minor
-```
-
----
-
-## 3. BPM Detection
-
-Example:
-
-```python
-from tempo_detection import detect_bpm
-
-bpm = detect_bpm(
-    "separated/drums.wav"
-)
-
-print(bpm)
-```
-
-Output:
-
-```
-Estimated BPM:
-
-128 BPM
-```
-
----
-
-## 4. Note Detection
-
-Example:
-
-```python
-from note_detection import detect_notes
-
-
-notes = detect_notes(
-    "separated/bass.wav"
-)
-
-print(notes)
-```
-
-Output:
-
-```
-C2
-E2
-G2
-A2
-```
-
----
-
-# Experimental Results
-
-During development, multiple combinations were evaluated.
-
-## Key Detection Comparison
-
-Tested approaches:
-
-| Method | Input |
-|-|-|
-| Chromagram | Full song |
-| Chromagram | Demucs stems |
-| CQT | Full song |
-| CQT | Demucs stems |
-
-The best performance was obtained using:
-
-```
-CQT representation
-+
-Demucs separated instruments
-```
-
----
-
-## BPM Detection Comparison
-
-Evaluated approaches:
-
-| Method | Input |
-|-|-|
-| Beat tracking | Full song |
-| HPSS percussion |
-| Demucs drums |
-
-Best results:
-
-```
-Demucs drums
-+
-Beat tracking
-```
-
----
-
-# Methodology
-
-The project combines classical DSP approaches with modern neural networks.
-
-The workflow:
-
-1. Load audio signal
-2. Normalize waveform
-3. Separate sources using Demucs
-4. Extract spectral features
-5. Analyze individual components
-6. Estimate musical parameters
-7. Present extracted information
-
----
-
-# Goals Achieved
-
-Implemented:
-
-✅ Automatic instrument separation  
-✅ Key detection  
-✅ BPM estimation  
-✅ CQT-based musical analysis  
-✅ Real-time note extraction  
-✅ Individual instrument processing  
-
----
-
-# Future Improvements
-
-Possible future extensions:
-
-## Better Pitch Detection
-
-Implement advanced models:
-
-- CREPE
-- Spotify Basic Pitch
-- Neural pitch estimation models
-
-
-## Automatic Chord Recognition
-
-Add:
-
-- chord progression detection
-- harmonic analysis
-
-
-## Music Transcription
-
-Extend note detection into:
-
-- MIDI generation
-- sheet music creation
-
-
-## Real-Time Application
-
-Develop:
-
-- desktop application
-- web interface
-- live microphone analysis
-
-
----
-
-# References
-
-- Demucs: Music Source Separation Model  
-  https://github.com/facebookresearch/demucs
-
-- Librosa Audio Analysis Library  
-  https://librosa.org/
-
-- Constant-Q Transform  
-  Brown, J. C. (1991). Calculation of a constant Q spectral transform.
-
----
-
-# Author
+## Author
 
 **Ljubomir Masleša**
 
-Bachelor of Information Systems and Technologies  
-University of Belgrade - Faculty of Organizational Sciences
+BSc in Information Systems and Technologies  
+University of Belgrade – Faculty of Organizational Sciences
 
----
+## License
 
-# License
-
-This project is intended for educational and research purposes.
+This project was developed for educational and research purposes.
