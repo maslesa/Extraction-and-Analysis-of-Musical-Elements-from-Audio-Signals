@@ -104,8 +104,8 @@ Experimental results indicate that CQT-based analysis of separated instrumental 
 Clone the repository:
 
 ```bash
-git clone https://github.com/maslesa/WaveSplitNotebook.git
-cd WaveSplitNotebook
+git clone https://github.com/maslesa/Extraction-and-Analysis-of-Musical-Elements-from-Audio-Signals
+cd Extraction-and-Analysis-of-Musical-Elements-from-Audio-Signals
 ```
 
 Create and activate a virtual environment:
